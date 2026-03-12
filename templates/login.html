@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Daily Meditation Streak</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --sand: #e8ddd0;
+            --clay: #b8956a;
+            --earth: #6b4f3a;
+            --moss: #4a5c4e;
+            --mist: #f5f0ea;
+            --ink: #2a1f1a;
+            --gold: #c9965a;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--mist);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Jost', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background orbs */
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+            animation: drift linear infinite;
+        }
+
+        .orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, #c9965a55, #b8956a22);
+            top: -100px; left: -100px;
+            animation-duration: 18s;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, #4a5c4e44, #2a4a3a22);
+            bottom: -80px; right: -80px;
+            animation-duration: 22s;
+            animation-direction: reverse;
+        }
+        .orb-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, #b8956a33, transparent);
+            top: 50%; left: 60%;
+            animation-duration: 14s;
+            animation-delay: -7s;
+        }
+
+        @keyframes drift {
+            0%   { transform: translate(0, 0) scale(1); }
+            25%  { transform: translate(40px, -30px) scale(1.05); }
+            50%  { transform: translate(20px, 50px) scale(0.97); }
+            75%  { transform: translate(-30px, 20px) scale(1.03); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* Ripple rings */
+        .ripple-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(180, 140, 100, 0.15);
+            transform: translate(-50%, -50%);
+            animation: expand ease-out infinite;
+        }
+
+        .ring:nth-child(1) { width: 200px; height: 200px; animation-duration: 4s; animation-delay: 0s; }
+        .ring:nth-child(2) { width: 200px; height: 200px; animation-duration: 4s; animation-delay: 1.3s; }
+        .ring:nth-child(3) { width: 200px; height: 200px; animation-duration: 4s; animation-delay: 2.6s; }
+
+        @keyframes expand {
+            0%   { width: 100px; height: 100px; opacity: 0.6; }
+            100% { width: 700px; height: 700px; opacity: 0; }
+        }
+
+        /* Card */
+        .card {
+            position: relative;
+            z-index: 10;
+            width: 420px;
+            background: rgba(255, 252, 248, 0.82);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(180, 140, 100, 0.2);
+            border-radius: 2px;
+            padding: 56px 52px 52px;
+            box-shadow:
+                0 4px 40px rgba(100, 70, 40, 0.08),
+                0 1px 0 rgba(255,255,255,0.9) inset;
+            animation: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(32px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Decorative line */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 52px; right: 52px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            border-radius: 0 0 2px 2px;
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeUp 0.8s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        /* Animated breath circle */
+        .breath-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 1.5px solid var(--clay);
+            position: relative;
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        .breath-circle::after {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--gold), var(--clay));
+            animation: breathe-inner 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(201,150,90,0.3); }
+            50%       { transform: scale(1.12); box-shadow: 0 0 0 10px rgba(201,150,90,0); }
+        }
+
+        @keyframes breathe-inner {
+            0%, 100% { transform: scale(0.85); opacity: 0.7; }
+            50%       { transform: scale(1); opacity: 1; }
+        }
+
+        .brand h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px;
+            font-weight: 400;
+            color: var(--ink);
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+        }
+
+        .brand p {
+            font-size: 11px;
+            font-weight: 200;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--clay);
+            margin-top: 6px;
+        }
+
+        /* Breath indicator text */
+        .breath-hint {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(180,140,100,0.6);
+            text-align: center;
+            margin-bottom: 36px;
+            animation: fadeUp 0.8s 0.35s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .breath-word {
+            display: inline-block;
+            animation: breatheText 4s ease-in-out infinite;
+        }
+
+        @keyframes breatheText {
+            0%, 100% { opacity: 0.4; }
+            50%       { opacity: 1; }
+        }
+
+        /* Error */
+        .error {
+            background: rgba(180, 80, 60, 0.08);
+            border-left: 2px solid #b44c3c;
+            color: #8a3020;
+            font-size: 12.5px;
+            padding: 10px 14px;
+            margin-bottom: 24px;
+            letter-spacing: 0.02em;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25%       { transform: translateX(-6px); }
+            75%       { transform: translateX(6px); }
+        }
+
+        /* Form */
+        .form-group {
+            position: relative;
+            margin-bottom: 22px;
+            animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.4s; }
+        .form-group:nth-child(2) { animation-delay: 0.5s; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 10px;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--earth);
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: rgba(232, 221, 208, 0.3);
+            border: 1px solid rgba(180, 140, 100, 0.25);
+            border-radius: 1px;
+            padding: 14px 16px;
+            font-family: 'Jost', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            color: var(--ink);
+            outline: none;
+            transition: all 0.35s ease;
+            letter-spacing: 0.04em;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(100, 80, 60, 0.35);
+            font-weight: 200;
+        }
+
+        .form-group input:focus {
+            border-color: var(--clay);
+            background: rgba(232, 221, 208, 0.5);
+            box-shadow: 0 0 0 3px rgba(201, 150, 90, 0.1);
+        }
+
+        /* Animated underline on focus */
+        .form-group::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0; height: 1px;
+            background: linear-gradient(90deg, var(--clay), var(--gold));
+            transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        .form-group:focus-within::after { width: 100%; }
+
+        /* Button */
+        .btn-wrap {
+            margin-top: 32px;
+            animation: fadeUp 0.8s 0.6s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--earth), var(--clay));
+            color: var(--mist);
+            border: none;
+            border-radius: 1px;
+            font-family: 'Jost', sans-serif;
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--clay), var(--gold));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        button[type="submit"]:hover::before { opacity: 1; }
+        button[type="submit"]:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(100,70,40,0.2); }
+        button[type="submit"]:active { transform: translateY(0); }
+
+        button[type="submit"] span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Ripple on click */
+        .btn-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: scale(0);
+            animation: btnRipple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes btnRipple {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        /* Footer */
+        .card-footer {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 12px;
+            font-weight: 200;
+            color: rgba(100,80,60,0.55);
+            letter-spacing: 0.05em;
+            animation: fadeUp 0.8s 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .card-footer a {
+            color: var(--clay);
+            text-decoration: none;
+            font-weight: 300;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .card-footer a:hover { border-color: var(--clay); }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 28px 0 0;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(180,140,100,0.2);
+        }
+
+        .divider span {
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            color: rgba(180,140,100,0.5);
+            text-transform: uppercase;
+        }
+
+        /* Particle dots */
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--clay);
+            opacity: 0;
+            animation: floatParticle linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes floatParticle {
+            0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+            10%  { opacity: 0.4; }
+            90%  { opacity: 0.2; }
+            100% { transform: translateY(-20px) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-canvas">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="ripple-container">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+    </div>
+
+    <div class="card" id="card">
+        <div class="brand">
+            <div class="brand-icon">
+                <div class="breath-circle"></div>
+            </div>
+            <h1>Daily Meditation</h1>
+            <p>One Minute · Every Day</p>
+        </div>
+
+        <p class="breath-hint">
+            <span class="breath-word" id="breathWord">Breathe in</span>
+        </p>
+
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
+            </div>
+            <div class="btn-wrap">
+                <button type="submit" id="submitBtn">
+                    <span>Begin Session</span>
+                </button>
+            </div>
+        </form>
+
+        <div class="divider"><span>new here</span></div>
+
+        <p class="card-footer">
+            No account yet? <a href="/register">Create one</a>
+        </p>
+    </div>
+
+    <script>
+        // Breath text cycle
+        const breathStates = ['Breathe in', 'Hold', 'Breathe out', 'Rest'];
+        const durations = [2000, 2000, 2000, 2000];
+        let bIdx = 0;
+        const breathWord = document.getElementById('breathWord');
+
+        function cycleBreath() {
+            bIdx = (bIdx + 1) % breathStates.length;
+            breathWord.style.opacity = '0';
+            breathWord.style.transform = 'translateY(4px)';
+            breathWord.style.transition = 'all 0.4s ease';
+            setTimeout(() => {
+                breathWord.textContent = breathStates[bIdx];
+                breathWord.style.opacity = '1';
+                breathWord.style.transform = 'translateY(0)';
+            }, 400);
+            setTimeout(cycleBreath, durations[bIdx]);
+        }
+        setTimeout(cycleBreath, durations[0]);
+
+        // Button ripple effect
+        document.getElementById('submitBtn').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const ripple = document.createElement('div');
+            ripple.className = 'btn-ripple';
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.cssText = `
+                width: ${size}px; height: ${size}px;
+                left: ${e.clientX - rect.left - size/2}px;
+                top: ${e.clientY - rect.top - size/2}px;
+            `;
+            this.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        // Floating particles
+        function spawnParticle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDuration = (8 + Math.random() * 12) + 's';
+            p.style.animationDelay = (Math.random() * 4) + 's';
+            p.style.width = p.style.height = (2 + Math.random() * 3) + 'px';
+            p.style.opacity = (0.1 + Math.random() * 0.3);
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 22000);
+        }
+
+        for (let i = 0; i < 18; i++) {
+            setTimeout(spawnParticle, i * 600);
+        }
+        setInterval(spawnParticle, 2200);
+
+        // Parallax tilt on card
+        const card = document.getElementById('card');
+        document.addEventListener('mousemove', e => {
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+            const dx = (e.clientX - cx) / cx;
+            const dy = (e.clientY - cy) / cy;
+            card.style.transform = `perspective(1000px) rotateY(${dx * 3}deg) rotateX(${-dy * 3}deg)`;
+        });
+        document.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg)';
+            card.style.transition = 'transform 0.6s ease';
+        });
+    </script>
+</body>
+</html>

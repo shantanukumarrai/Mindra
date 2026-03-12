@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meditation Session</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --sand: #e8ddd0;
+            --clay: #b8956a;
+            --earth: #6b4f3a;
+            --moss: #4a5c4e;
+            --mist: #f5f0ea;
+            --ink: #2a1f1a;
+            --gold: #c9965a;
+            --deep: #1a1410;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Jost', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── Starfield ── */
+        .stars {
+            position: fixed; inset: 0; z-index: 0;
+            pointer-events: none;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(232,221,208,0.7);
+            animation: twinkle ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%,100% { opacity: 0.1; transform: scale(1); }
+            50%      { opacity: 0.8; transform: scale(1.4); }
+        }
+
+        /* ── Aurora bg ── */
+        .aurora {
+            position: fixed; inset: 0; z-index: 0;
+            overflow: hidden;
+        }
+        .aurora-band {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0;
+            animation: auroraPulse ease-in-out infinite;
+        }
+        .aurora-band:nth-child(1) {
+            width: 700px; height: 400px;
+            background: radial-gradient(ellipse, rgba(74,92,78,0.4), transparent 70%);
+            top: -100px; left: 50%; transform: translateX(-50%);
+            animation-duration: 12s; animation-delay: 0s;
+        }
+        .aurora-band:nth-child(2) {
+            width: 500px; height: 300px;
+            background: radial-gradient(ellipse, rgba(180,140,100,0.25), transparent 70%);
+            bottom: -80px; left: 20%;
+            animation-duration: 16s; animation-delay: -6s;
+        }
+        .aurora-band:nth-child(3) {
+            width: 400px; height: 250px;
+            background: radial-gradient(ellipse, rgba(107,79,58,0.3), transparent 70%);
+            top: 30%; right: -50px;
+            animation-duration: 10s; animation-delay: -3s;
+        }
+        @keyframes auroraPulse {
+            0%,100% { opacity: 0; transform: scale(0.9) translateY(10px); }
+            50%      { opacity: 1; transform: scale(1.05) translateY(-10px); }
+        }
+
+        /* ── Main layout ── */
+        .scene {
+            position: relative; z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            padding: 40px 24px;
+        }
+
+        /* ── Header ── */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            animation: riseIn 1s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(28px, 5vw, 38px);
+            font-weight: 300;
+            color: var(--sand);
+            letter-spacing: 0.06em;
+            line-height: 1.2;
+        }
+        .header h1 em {
+            font-style: italic;
+            color: var(--clay);
+        }
+        .header p {
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 200;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(232,221,208,0.4);
+        }
+
+        /* ── Mandala / ring system ── */
+        .mandala-wrap {
+            position: relative;
+            width: 280px; height: 280px;
+            display: flex; align-items: center; justify-content: center;
+            animation: riseIn 1s 0.4s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border-style: solid;
+        }
+
+        /* Outer decorative rotating ring */
+        .ring-deco-1 {
+            width: 260px; height: 260px;
+            border-width: 1px;
+            border-color: rgba(180,140,100,0.12);
+            animation: spinSlow 60s linear infinite;
+        }
+        .ring-deco-1::after {
+            content: '';
+            position: absolute;
+            top: -4px; left: 50%; transform: translateX(-50%);
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--clay);
+            opacity: 0.6;
+        }
+
+        .ring-deco-2 {
+            width: 230px; height: 230px;
+            border-width: 1px;
+            border-color: rgba(180,140,100,0.08);
+            animation: spinSlow 40s linear infinite reverse;
+        }
+
+        @keyframes spinSlow { to { transform: rotate(360deg); } }
+
+        /* Progress ring (SVG) */
+        .progress-svg {
+            position: absolute;
+            width: 220px; height: 220px;
+            transform: rotate(-90deg);
+        }
+        .progress-track {
+            fill: none;
+            stroke: rgba(180,140,100,0.12);
+            stroke-width: 1.5;
+        }
+        .progress-fill {
+            fill: none;
+            stroke: url(#progressGrad);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-dasharray: 628;
+            stroke-dashoffset: 628;
+            transition: stroke-dashoffset 1s ease;
+            filter: drop-shadow(0 0 6px rgba(201,150,90,0.5));
+        }
+
+        /* Breath circle */
+        .breath-circle {
+            position: absolute;
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%,
+                rgba(180,140,100,0.18),
+                rgba(107,79,58,0.08) 60%,
+                transparent);
+            border: 1px solid rgba(180,140,100,0.2);
+            animation: breathIdle 5s ease-in-out infinite;
+            transition: animation 0.3s;
+        }
+
+        .breath-circle::before {
+            content: '';
+            position: absolute;
+            inset: 16px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%,
+                rgba(201,150,90,0.15),
+                rgba(74,92,78,0.08));
+            border: 1px solid rgba(180,140,100,0.1);
+            animation: breathIdle 5s ease-in-out infinite;
+            animation-delay: 0.3s;
+        }
+
+        @keyframes breathIdle {
+            0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(201,150,90,0); }
+            50%      { transform: scale(1.06); box-shadow: 0 0 30px 8px rgba(201,150,90,0.08); }
+        }
+
+        .breath-circle.expanding {
+            animation: breathExpand 4s ease-in-out infinite !important;
+        }
+        .breath-circle.expanding::before {
+            animation: breathExpand 4s ease-in-out infinite !important;
+            animation-delay: 0.4s !important;
+        }
+        @keyframes breathExpand {
+            0%,100% { transform: scale(0.88); box-shadow: 0 0 0 0 rgba(201,150,90,0); }
+            50%      { transform: scale(1.12); box-shadow: 0 0 50px 16px rgba(201,150,90,0.12); }
+        }
+
+        /* Timer number */
+        .timer-display {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .timer-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 62px;
+            font-weight: 300;
+            color: var(--sand);
+            line-height: 1;
+            letter-spacing: -0.02em;
+            transition: all 0.4s ease;
+        }
+        .timer-number.pulse {
+            animation: numPulse 1s ease;
+        }
+        @keyframes numPulse {
+            0%   { transform: scale(1); }
+            50%  { transform: scale(1.08); color: var(--clay); }
+            100% { transform: scale(1); }
+        }
+        .timer-unit {
+            font-size: 10px;
+            font-weight: 200;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(232,221,208,0.35);
+        }
+
+        /* ── Breath phrase ── */
+        .breath-phrase {
+            margin-top: 36px;
+            height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            animation: riseIn 1s 0.6s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .breath-word {
+            font-size: 11px;
+            font-weight: 200;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: rgba(201,150,90,0.6);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        /* ── Phase bar ── */
+        .phase-bar {
+            display: flex;
+            gap: 6px;
+            margin-top: 16px;
+            animation: riseIn 1s 0.65s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .phase-seg {
+            width: 32px; height: 2px;
+            border-radius: 2px;
+            background: rgba(180,140,100,0.15);
+            transition: background 0.5s ease, transform 0.3s ease;
+        }
+        .phase-seg.lit {
+            background: var(--clay);
+            transform: scaleY(1.5);
+        }
+
+        /* ── Controls ── */
+        .controls {
+            margin-top: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            animation: riseIn 1s 0.8s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .btn-begin {
+            padding: 16px 56px;
+            background: linear-gradient(135deg, var(--earth), var(--clay));
+            color: var(--mist);
+            border: none;
+            border-radius: 1px;
+            font-family: 'Jost', sans-serif;
+            font-size: 11px; font-weight: 300;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative; overflow: hidden;
+            transition: all 0.35s ease;
+        }
+        .btn-begin::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, var(--clay), var(--gold));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .btn-begin:hover::before { opacity: 1; }
+        .btn-begin:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(100,70,40,0.3); }
+        .btn-begin span { position: relative; z-index: 1; }
+
+        .btn-complete {
+            padding: 16px 56px;
+            background: transparent;
+            color: var(--clay);
+            border: 1px solid rgba(180,140,100,0.35);
+            border-radius: 1px;
+            font-family: 'Jost', sans-serif;
+            font-size: 11px; font-weight: 300;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative; overflow: hidden;
+            transition: all 0.35s ease;
+            display: none;
+        }
+        .btn-complete::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(180,140,100,0.08);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .btn-complete:hover::before { opacity: 1; }
+        .btn-complete:hover { border-color: var(--clay); transform: translateY(-1px); }
+        .btn-complete span { position: relative; z-index: 1; }
+
+        .btn-ripple {
+            position: absolute; border-radius: 50%;
+            background: rgba(255,255,255,0.25);
+            transform: scale(0);
+            animation: rippleOut 0.7s linear;
+            pointer-events: none;
+        }
+        @keyframes rippleOut { to { transform: scale(5); opacity: 0; } }
+
+        /* ── Status ── */
+        .status-text {
+            font-size: 11px;
+            font-weight: 200;
+            letter-spacing: 0.2em;
+            color: rgba(232,221,208,0.3);
+            text-transform: uppercase;
+            min-height: 18px;
+            transition: all 0.5s ease;
+            text-align: center;
+        }
+
+        /* ── Finish overlay ── */
+        .finish-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(26,20,16,0.95);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 24px;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+        .finish-overlay.visible { opacity: 1; pointer-events: all; }
+
+        .finish-ring {
+            width: 80px; height: 80px;
+        }
+        .finish-ring svg { width: 100%; height: 100%; }
+        .finish-circle {
+            fill: none; stroke: var(--moss);
+            stroke-width: 1.5;
+            stroke-dasharray: 220; stroke-dashoffset: 220;
+        }
+        .finish-circle.draw { animation: drawCircle 1s 0.3s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .finish-check {
+            fill: none; stroke: var(--moss);
+            stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+            stroke-dasharray: 50; stroke-dashoffset: 50;
+        }
+        .finish-check.draw { animation: drawCheck 0.5s 1.1s ease forwards; }
+        @keyframes drawCircle { to { stroke-dashoffset: 0; } }
+        @keyframes drawCheck  { to { stroke-dashoffset: 0; } }
+
+        .finish-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px; font-weight: 300;
+            color: var(--sand); letter-spacing: 0.08em;
+            opacity: 0; transform: translateY(16px);
+            transition: all 0.8s 1.4s ease;
+        }
+        .finish-overlay.visible .finish-title { opacity: 1; transform: translateY(0); }
+
+        .finish-sub {
+            font-size: 11px; font-weight: 200;
+            letter-spacing: 0.25em; text-transform: uppercase;
+            color: rgba(201,150,90,0.6);
+            opacity: 0;
+            transition: all 0.8s 1.7s ease;
+        }
+        .finish-overlay.visible .finish-sub { opacity: 1; }
+
+        /* ── Particles ── */
+        .particle {
+            position: fixed; border-radius: 50%;
+            background: var(--clay); opacity: 0;
+            animation: floatUp linear infinite;
+            z-index: 2; pointer-events: none;
+        }
+        @keyframes floatUp {
+            0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+            8%   { opacity: 0.3; }
+            92%  { opacity: 0.12; }
+            100% { transform: translateY(-5vh) scale(1.5); opacity: 0; }
+        }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Waveform (bottom ambiance) ── */
+        .wave-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 60px; z-index: 1;
+            display: flex; align-items: flex-end;
+            justify-content: center;
+            gap: 3px;
+            padding-bottom: 8px;
+            opacity: 0.18;
+        }
+        .wave-seg {
+            width: 3px;
+            border-radius: 3px 3px 0 0;
+            background: var(--clay);
+            animation: waveDance ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="aurora">
+    <div class="aurora-band"></div>
+    <div class="aurora-band"></div>
+    <div class="aurora-band"></div>
+</div>
+<div class="stars" id="stars"></div>
+
+<!-- Ambient waveform -->
+<div class="wave-bar" id="waveBar"></div>
+
+<!-- Finish overlay -->
+<div class="finish-overlay" id="finishOverlay">
+    <div class="finish-ring">
+        <svg viewBox="0 0 80 80">
+            <circle class="finish-circle" id="finCircle" cx="40" cy="40" r="35"/>
+            <polyline class="finish-check" id="finCheck" points="24,40 35,51 56,28"/>
+        </svg>
+    </div>
+    <div class="finish-title">Well done</div>
+    <div class="finish-sub">Your session is complete</div>
+</div>
+
+<!-- Main scene -->
+<div class="scene">
+    <div class="header">
+        <h1>One Minute<br><em>Meditation</em></h1>
+        <p>Sit still &middot; Breathe deep &middot; Be present</p>
+    </div>
+
+    <!-- Mandala timer -->
+    <div class="mandala-wrap">
+        <div class="ring ring-deco-1"></div>
+        <div class="ring ring-deco-2"></div>
+
+        <svg class="progress-svg" viewBox="0 0 220 220">
+            <defs>
+                <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#c9965a"/>
+                    <stop offset="100%" stop-color="#4a5c4e"/>
+                </linearGradient>
+            </defs>
+            <circle class="progress-track" cx="110" cy="110" r="100"/>
+            <circle class="progress-fill" id="progressFill" cx="110" cy="110" r="100"/>
+        </svg>
+
+        <div class="breath-circle" id="breathCircle"></div>
+
+        <div class="timer-display">
+            <div class="timer-number" id="timerNum">60</div>
+            <div class="timer-unit">seconds</div>
+        </div>
+    </div>
+
+    <!-- Breath cue -->
+    <div class="breath-phrase">
+        <div class="breath-word" id="breathWord">Find your stillness</div>
+    </div>
+
+    <!-- Phase dots -->
+    <div class="phase-bar" id="phaseBar"></div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="status-text" id="statusText"></div>
+        <button class="btn-begin" id="startBtn">
+            <span>Begin Session</span>
+        </button>
+        <button class="btn-complete" id="completeBtn">
+            <span>Log Completion</span>
+        </button>
+    </div>
+</div>
+
+<script>
+    // ── Stars ──
+    const starsEl = document.getElementById('stars');
+    for (let i = 0; i < 80; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = 1 + Math.random() * 2;
+        s.style.cssText = `
+            width:${size}px; height:${size}px;
+            top:${Math.random()*100}%; left:${Math.random()*100}%;
+            animation-duration:${2+Math.random()*4}s;
+            animation-delay:${Math.random()*5}s;
+        `;
+        starsEl.appendChild(s);
+    }
+
+    // ── Waveform ──
+    const waveBar = document.getElementById('waveBar');
+    const waveSegs = [];
+    for (let i = 0; i < 48; i++) {
+        const w = document.createElement('div');
+        w.className = 'wave-seg';
+        const h = 6 + Math.random() * 28;
+        w.style.cssText = `
+            height:${h}px;
+            animation-duration:${0.8+Math.random()*1.6}s;
+            animation-delay:${Math.random()*2}s;
+        `;
+        waveBar.appendChild(w);
+        waveSegs.push(w);
+    }
+
+    // Wave dance keyframes injected
+    const styleSheet = document.createElement('style');
+    document.head.appendChild(styleSheet);
+    styleSheet.sheet.insertRule(`@keyframes waveDance {
+        0%,100% { transform: scaleY(1); }
+        50%      { transform: scaleY(0.3); }
+    }`, 0);
+
+    // ── Phase bar (4 breath phases) ──
+    const phaseBar = document.getElementById('phaseBar');
+    const phaseLabels = ['In', 'Hold', 'Out', 'Rest'];
+    const phaseEls = [];
+    phaseLabels.forEach(() => {
+        const seg = document.createElement('div');
+        seg.className = 'phase-seg';
+        phaseBar.appendChild(seg);
+        phaseEls.push(seg);
+    });
+
+    // ── Timer state ──
+    let timeLeft = 60;
+    let timerInterval = null;
+    let running = false;
+    let breathInterval = null;
+    let breathIdx = 0;
+
+    const TOTAL = 60;
+    const CIRCUMFERENCE = 2 * Math.PI * 100; // r=100
+
+    const timerNum   = document.getElementById('timerNum');
+    const progressFill = document.getElementById('progressFill');
+    const startBtn   = document.getElementById('startBtn');
+    const completeBtn= document.getElementById('completeBtn');
+    const statusText = document.getElementById('statusText');
+    const breathCircle = document.getElementById('breathCircle');
+    const breathWord  = document.getElementById('breathWord');
+    const finishOverlay = document.getElementById('finishOverlay');
+
+    const breathPhrases = [
+        ['Breathe in', 'Hold gently', 'Breathe out', 'Rest'],
+        ['Draw breath', 'Be still', 'Release', 'Let go'],
+        ['Inhale calm', 'Pause', 'Exhale tension', 'Surrender'],
+    ];
+    let phraseSet = 0;
+
+    function setProgress(elapsed) {
+        const pct = elapsed / TOTAL;
+        const offset = CIRCUMFERENCE * (1 - pct);
+        progressFill.style.strokeDashoffset = offset;
+    }
+
+    function updateBreathPhase(phase) {
+        phaseEls.forEach((el, i) => el.classList.toggle('lit', i === phase));
+        const word = breathPhrases[phraseSet % breathPhrases.length][phase];
+        breathWord.style.opacity = '0';
+        breathWord.style.transform = 'translateY(6px)';
+        setTimeout(() => {
+            breathWord.textContent = word;
+            breathWord.style.opacity = '1';
+            breathWord.style.transform = 'translateY(0)';
+            breathWord.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        }, 300);
+    }
+
+    function startBreathCycle() {
+        const phaseDuration = [1800, 800, 1800, 600]; // ms per phase
+        breathIdx = 0;
+        updateBreathPhase(0);
+
+        function nextPhase() {
+            breathInterval = setTimeout(() => {
+                breathIdx = (breathIdx + 1) % 4;
+                if (breathIdx === 0) phraseSet++;
+                updateBreathPhase(breathIdx);
+                if (running) nextPhase();
+            }, phaseDuration[breathIdx]);
+        }
+        nextPhase();
+    }
+
+    // ── Start ──
+    startBtn.addEventListener('click', function(e) {
+        addRipple(this, e);
+        this.style.opacity = '0';
+        this.style.transform = 'translateY(10px)';
+        this.style.transition = 'all 0.4s ease';
+        setTimeout(() => this.style.display = 'none', 400);
+
+        statusText.textContent = 'Session in progress';
+        statusText.style.color = 'rgba(201,150,90,0.5)';
+
+        breathCircle.classList.add('expanding');
+        running = true;
+        startBreathCycle();
+
+        const startTime = Date.now();
+        timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            timeLeft = Math.max(0, TOTAL - elapsed);
+
+            // Pulse on each tick
+            timerNum.classList.remove('pulse');
+            void timerNum.offsetWidth;
+            timerNum.classList.add('pulse');
+            timerNum.textContent = timeLeft;
+
+            setProgress(elapsed);
+
+            // Intensify waveform as time decreases
+            const intensity = elapsed / TOTAL;
+            waveBar.style.opacity = 0.18 + intensity * 0.25;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                running = false;
+                clearTimeout(breathInterval);
+                onComplete();
+            }
+        }, 1000);
+    });
+
+    function onComplete() {
+        breathCircle.classList.remove('expanding');
+        statusText.style.display = 'none';
+
+        // Show finish overlay
+        finishOverlay.classList.add('visible');
+        setTimeout(() => {
+            document.getElementById('finCircle').classList.add('draw');
+            document.getElementById('finCheck').classList.add('draw');
+        }, 100);
+
+        // After overlay, show log button
+        setTimeout(() => {
+            finishOverlay.classList.remove('visible');
+            timerNum.textContent = '·';
+            breathWord.textContent = 'Time complete';
+            phaseEls.forEach(el => el.classList.remove('lit'));
+
+            completeBtn.style.display = 'inline-block';
+            completeBtn.style.animation = 'riseIn 0.7s cubic-bezier(0.16,1,0.3,1) both';
+        }, 3800);
+    }
+
+    // ── Log completion ──
+    completeBtn.addEventListener('click', function(e) {
+        addRipple(this, e);
+        this.querySelector('span').textContent = 'Saving...';
+        this.style.opacity = '0.6';
+        this.style.pointerEvents = 'none';
+
+        fetch('/complete-meditation', {
+            method: 'POST',
+            credentials: 'include'
+        })
+        .then(res => res.json())
+        .then(data => {
+            window.location.href = '/dashboard';
+        })
+        .catch(() => {
+            window.location.href = '/dashboard';
+        });
+    });
+
+    // ── Ripple utility ──
+    function addRipple(btn, e) {
+        const rect = btn.getBoundingClientRect();
+        const rpl = document.createElement('div');
+        rpl.className = 'btn-ripple';
+        const size = Math.max(rect.width, rect.height);
+        rpl.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+        btn.appendChild(rpl);
+        setTimeout(() => rpl.remove(), 700);
+    }
+
+    // ── Floating particles ──
+    function spawnParticle() {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDuration = (12 + Math.random() * 14) + 's';
+        p.style.animationDelay = (Math.random() * 4) + 's';
+        const sz = 1.5 + Math.random() * 2.5;
+        p.style.width = p.style.height = sz + 'px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 28000);
+    }
+    for (let i = 0; i < 14; i++) setTimeout(spawnParticle, i * 800);
+    setInterval(spawnParticle, 3000);
+</script>
+</body>
+</html>

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Daily Meditation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --sand: #e8ddd0;
+            --clay: #b8956a;
+            --earth: #6b4f3a;
+            --moss: #4a5c4e;
+            --mist: #f5f0ea;
+            --ink: #2a1f1a;
+            --gold: #c9965a;
+            --deep: #1a1410;
+            --panel: rgba(255,252,248,0.06);
+            --border: rgba(180,140,100,0.15);
+        }
+
+        html, body {
+            min-height: 100vh;
+            background: var(--deep);
+            font-family: 'Jost', sans-serif;
+            overflow-x: hidden;
+            color: var(--sand);
+        }
+
+        /* ── Stars ── */
+        .stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        .star {
+            position: absolute; border-radius: 50%;
+            background: rgba(232,221,208,0.75);
+            animation: twinkle ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%,100% { opacity: 0.08; transform: scale(1); }
+            50%      { opacity: 0.7; transform: scale(1.5); }
+        }
+
+        /* ── Aurora ── */
+        .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        .aurora-band {
+            position: absolute; border-radius: 50%;
+            filter: blur(100px); opacity: 0;
+            animation: auroraPulse ease-in-out infinite;
+        }
+        .aurora-band:nth-child(1) {
+            width: 800px; height: 500px;
+            background: radial-gradient(ellipse, rgba(74,92,78,0.35), transparent 70%);
+            top: -150px; left: 30%;
+            animation-duration: 14s;
+        }
+        .aurora-band:nth-child(2) {
+            width: 600px; height: 350px;
+            background: radial-gradient(ellipse, rgba(180,140,100,0.2), transparent 70%);
+            bottom: -100px; right: 10%;
+            animation-duration: 18s; animation-delay: -7s;
+        }
+        .aurora-band:nth-child(3) {
+            width: 400px; height: 300px;
+            background: radial-gradient(ellipse, rgba(107,79,58,0.25), transparent 70%);
+            top: 40%; left: -80px;
+            animation-duration: 11s; animation-delay: -4s;
+        }
+        @keyframes auroraPulse {
+            0%,100% { opacity: 0; transform: scale(0.9) translateY(12px); }
+            50%      { opacity: 1; transform: scale(1.06) translateY(-10px); }
+        }
+
+        /* ── Particles ── */
+        .particle {
+            position: fixed; border-radius: 50%;
+            background: var(--clay); opacity: 0;
+            animation: floatUp linear infinite; z-index: 2; pointer-events: none;
+        }
+        @keyframes floatUp {
+            0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+            8%   { opacity: 0.25; }
+            92%  { opacity: 0.1; }
+            100% { transform: translateY(-5vh) scale(1.5); opacity: 0; }
+        }
+
+        /* ── Layout ── */
+        .page {
+            position: relative; z-index: 10;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* ── Top nav ── */
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 64px;
+            animation: riseIn 0.9s 0.1s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .brand-mark {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .brand-orb {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 1px solid rgba(180,140,100,0.35);
+            position: relative;
+            animation: breathSmall 4s ease-in-out infinite;
+        }
+        .brand-orb::after {
+            content: '';
+            position: absolute; inset: 7px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--gold), var(--clay));
+            animation: breathSmall 4s ease-in-out infinite;
+            animation-delay: 0.4s;
+        }
+        @keyframes breathSmall {
+            0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(201,150,90,0); }
+            50%      { transform: scale(1.1); box-shadow: 0 0 12px 3px rgba(201,150,90,0.15); }
+        }
+        .brand-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px; font-weight: 400;
+            color: var(--sand); letter-spacing: 0.06em;
+        }
+        .logout-btn {
+            font-family: 'Jost', sans-serif;
+            font-size: 10px; font-weight: 200;
+            letter-spacing: 0.25em; text-transform: uppercase;
+            color: rgba(180,140,100,0.45);
+            text-decoration: none;
+            border: 1px solid rgba(180,140,100,0.15);
+            padding: 9px 20px; border-radius: 1px;
+            transition: all 0.35s ease;
+        }
+        .logout-btn:hover {
+            color: var(--clay); border-color: rgba(180,140,100,0.4);
+            background: rgba(180,140,100,0.06);
+        }
+
+        /* ── Welcome ── */
+        .welcome {
+            margin-bottom: 56px;
+            animation: riseIn 0.9s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .welcome-greeting {
+            font-size: 12px; font-weight: 200;
+            letter-spacing: 0.3em; text-transform: uppercase;
+            color: rgba(201,150,90,0.5);
+            margin-bottom: 10px;
+        }
+        .welcome h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(36px, 6vw, 52px);
+            font-weight: 300; line-height: 1.1;
+            color: var(--sand); letter-spacing: 0.02em;
+        }
+        .welcome h1 em { font-style: italic; color: var(--clay); }
+        .welcome-sub {
+            margin-top: 12px;
+            font-size: 13px; font-weight: 200;
+            color: rgba(232,221,208,0.35);
+            letter-spacing: 0.08em;
+        }
+
+        /* ── Stats row ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 28px 24px;
+            position: relative; overflow: hidden;
+            animation: riseIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .stat-card:nth-child(1) { animation-delay: 0.3s; }
+        .stat-card:nth-child(2) { animation-delay: 0.4s; }
+        .stat-card:nth-child(3) { animation-delay: 0.5s; }
+
+        .stat-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .stat-card:hover { transform: translateY(-3px); border-color: rgba(180,140,100,0.3); }
+        .stat-card:hover::before { opacity: 1; }
+
+        .stat-label {
+            font-size: 9px; font-weight: 200;
+            letter-spacing: 0.28em; text-transform: uppercase;
+            color: rgba(180,140,100,0.5);
+            margin-bottom: 14px;
+        }
+        .stat-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px; font-weight: 300;
+            color: var(--sand); line-height: 1;
+            letter-spacing: -0.01em;
+        }
+        .stat-value.animate-count { color: var(--clay); }
+        .stat-unit {
+            font-size: 11px; font-weight: 200;
+            letter-spacing: 0.2em;
+            color: rgba(180,140,100,0.35);
+            margin-top: 6px;
+        }
+
+        /* Streak fire ring */
+        .stat-card.streak-card .stat-value {
+            position: relative;
+            display: inline-block;
+        }
+        .streak-ring-svg {
+            position: absolute;
+            top: 16px; right: 16px;
+            width: 44px; height: 44px;
+            opacity: 0.5;
+        }
+        .streak-ring-track {
+            fill: none; stroke: rgba(180,140,100,0.12); stroke-width: 2;
+        }
+        .streak-ring-fill {
+            fill: none; stroke: var(--clay); stroke-width: 2;
+            stroke-linecap: round; stroke-dasharray: 110; stroke-dashoffset: 110;
+            transition: stroke-dashoffset 1.5s 0.8s cubic-bezier(0.16,1,0.3,1);
+            transform: rotate(-90deg); transform-origin: center;
+        }
+
+        /* ── Main action card ── */
+        .action-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 48px;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 32px;
+            margin-bottom: 40px;
+            position: relative; overflow: hidden;
+            animation: riseIn 0.9s 0.6s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .action-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        /* Breath pulse bg */
+        .action-bg-pulse {
+            position: absolute;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(74,92,78,0.12), transparent 70%);
+            right: -80px; top: 50%; transform: translateY(-50%);
+            animation: bgPulse 5s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes bgPulse {
+            0%,100% { transform: translateY(-50%) scale(1); opacity: 0.5; }
+            50%      { transform: translateY(-50%) scale(1.2); opacity: 1; }
+        }
+
+        .action-info { flex: 1; position: relative; z-index: 1; }
+        .action-tag {
+            font-size: 9px; font-weight: 200;
+            letter-spacing: 0.3em; text-transform: uppercase;
+            color: rgba(201,150,90,0.5); margin-bottom: 12px;
+        }
+        .action-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px; font-weight: 400;
+            color: var(--sand); line-height: 1.2;
+            margin-bottom: 10px; letter-spacing: 0.02em;
+        }
+        .action-desc {
+            font-size: 13px; font-weight: 200;
+            color: rgba(232,221,208,0.4); line-height: 1.7;
+            letter-spacing: 0.04em; max-width: 340px;
+        }
+
+        .action-right { flex-shrink: 0; position: relative; z-index: 1; }
+
+        /* Mandala mini */
+        .mini-mandala {
+            width: 120px; height: 120px;
+            position: relative; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .mini-ring {
+            position: absolute; border-radius: 50%;
+            border: 1px solid rgba(180,140,100,0.15);
+        }
+        .mini-ring:nth-child(1) { width: 110px; height: 110px; animation: spinSlow 50s linear infinite; }
+        .mini-ring:nth-child(2) { width: 85px; height: 85px; animation: spinSlow 35s linear infinite reverse; }
+        .mini-core {
+            width: 50px; height: 50px; border-radius: 50%;
+            border: 1px solid rgba(180,140,100,0.25);
+            background: radial-gradient(circle, rgba(180,140,100,0.15), transparent);
+            animation: breathSmall 4s ease-in-out infinite;
+        }
+        @keyframes spinSlow { to { transform: rotate(360deg); } }
+
+        /* Completed state */
+        .completed-badge {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 18px;
+            background: rgba(74,92,78,0.15);
+            border: 1px solid rgba(74,92,78,0.3);
+            border-radius: 1px;
+            margin-bottom: 20px;
+        }
+        .completed-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #7ab87a;
+            box-shadow: 0 0 8px rgba(122,184,122,0.6);
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+            0%,100% { box-shadow: 0 0 8px rgba(122,184,122,0.4); }
+            50%      { box-shadow: 0 0 16px rgba(122,184,122,0.8); }
+        }
+        .completed-text {
+            font-size: 11px; font-weight: 200;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            color: rgba(122,184,122,0.8);
+        }
+
+        /* Buttons */
+        .btn-meditate {
+            display: inline-block;
+            padding: 15px 36px;
+            background: linear-gradient(135deg, var(--earth), var(--clay));
+            color: var(--mist);
+            text-decoration: none;
+            border-radius: 1px;
+            font-family: 'Jost', sans-serif;
+            font-size: 11px; font-weight: 300;
+            letter-spacing: 0.3em; text-transform: uppercase;
+            position: relative; overflow: hidden;
+            transition: all 0.35s ease;
+            margin-top: 24px;
+        }
+        .btn-meditate::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, var(--clay), var(--gold));
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .btn-meditate:hover::before { opacity: 1; }
+        .btn-meditate:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(100,70,40,0.3); }
+        .btn-meditate span { position: relative; z-index: 1; }
+
+        .btn-disabled {
+            display: inline-block;
+            padding: 15px 36px;
+            background: transparent;
+            color: rgba(180,140,100,0.3);
+            text-decoration: none;
+            border: 1px solid rgba(180,140,100,0.12);
+            border-radius: 1px;
+            font-family: 'Jost', sans-serif;
+            font-size: 11px; font-weight: 200;
+            letter-spacing: 0.3em; text-transform: uppercase;
+            cursor: not-allowed;
+            margin-top: 24px;
+        }
+
+        /* ── Calendar strip ── */
+        .section-label {
+            font-size: 9px; font-weight: 200;
+            letter-spacing: 0.3em; text-transform: uppercase;
+            color: rgba(180,140,100,0.4);
+            margin-bottom: 16px;
+            animation: riseIn 0.9s 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .calendar-strip {
+            display: flex; gap: 8px;
+            margin-bottom: 40px;
+            animation: riseIn 0.9s 0.75s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .cal-day {
+            flex: 1;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 1px;
+            padding: 14px 8px;
+            text-align: center;
+            position: relative; overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+        .cal-day.done {
+            border-color: rgba(74,92,78,0.35);
+            background: rgba(74,92,78,0.1);
+        }
+        .cal-day.today {
+            border-color: rgba(180,140,100,0.35);
+            background: rgba(180,140,100,0.07);
+        }
+        .cal-day-name {
+            font-size: 8px; font-weight: 200;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            color: rgba(180,140,100,0.4);
+            margin-bottom: 8px;
+        }
+        .cal-day-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px; font-weight: 300;
+            color: rgba(232,221,208,0.25);
+        }
+        .cal-day.done .cal-day-num { color: rgba(122,184,122,0.7); }
+        .cal-day.today .cal-day-num { color: var(--clay); }
+        .cal-dot {
+            width: 4px; height: 4px; border-radius: 50%;
+            background: rgba(122,184,122,0.6);
+            margin: 6px auto 0;
+            display: none;
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+        .cal-day.done .cal-dot { display: block; }
+        .cal-day.today .cal-dot { display: block; background: rgba(201,150,90,0.6); }
+
+        /* ── Quote card ── */
+        .quote-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 36px 40px;
+            position: relative; overflow: hidden;
+            animation: riseIn 0.9s 0.9s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .quote-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(180,140,100,0.3), transparent);
+        }
+        .quote-mark {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 64px; font-weight: 300;
+            color: rgba(180,140,100,0.12);
+            line-height: 0.5;
+            margin-bottom: 16px;
+            display: block;
+        }
+        .quote-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px; font-weight: 300; font-style: italic;
+            color: rgba(232,221,208,0.6);
+            line-height: 1.6; letter-spacing: 0.02em;
+            min-height: 58px;
+            transition: opacity 0.6s ease;
+        }
+        .quote-attr {
+            margin-top: 14px;
+            font-size: 10px; font-weight: 200;
+            letter-spacing: 0.25em; text-transform: uppercase;
+            color: rgba(180,140,100,0.3);
+        }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Waveform bottom */
+        .wave-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            height: 50px; z-index: 1;
+            display: flex; align-items: flex-end; justify-content: center;
+            gap: 3px; padding-bottom: 6px;
+            opacity: 0.1; pointer-events: none;
+        }
+        .wave-seg {
+            width: 3px; border-radius: 3px 3px 0 0;
+            background: var(--clay);
+            animation: waveDance ease-in-out infinite;
+        }
+        @keyframes waveDance {
+            0%,100% { transform: scaleY(1); }
+            50%      { transform: scaleY(0.25); }
+        }
+
+        @media (max-width: 640px) {
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .action-card { flex-direction: column; padding: 32px 24px; }
+            .action-right { display: none; }
+            .stats-row .stat-card:nth-child(3) { grid-column: 1 / -1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="aurora">
+    <div class="aurora-band"></div>
+    <div class="aurora-band"></div>
+    <div class="aurora-band"></div>
+</div>
+<div class="stars" id="stars"></div>
+<div class="wave-bar" id="waveBar"></div>
+
+<div class="page">
+
+    <!-- Top bar -->
+    <nav class="topbar">
+        <div class="brand-mark">
+            <div class="brand-orb"></div>
+            <span class="brand-name">Daily Meditation</span>
+        </div>
+        <a href="/logout" class="logout-btn">Sign out</a>
+    </nav>
+
+    <!-- Welcome -->
+    <div class="welcome">
+        <div class="welcome-greeting">Welcome back</div>
+        <h1>Good to see you,<br><em>{{ name }}</em></h1>
+        <p class="welcome-sub" id="greetSub">Loading your moment of calm...</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-card streak-card">
+            <svg class="streak-ring-svg" viewBox="0 0 44 44">
+                <circle class="streak-ring-track" cx="22" cy="22" r="17.5"/>
+                <circle class="streak-ring-fill" id="streakRingFill" cx="22" cy="22" r="17.5"/>
+            </svg>
+            <div class="stat-label">Current Streak</div>
+            <div class="stat-value" id="streakVal">0</div>
+            <div class="stat-unit">days in a row</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Highest Streak</div>
+            <div class="stat-value" id="highVal">0</div>
+            <div class="stat-unit">personal best</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Today</div>
+            <div class="stat-value" id="todayVal" style="font-size:32px; padding-top:8px;">—</div>
+            <div class="stat-unit" id="todayUnit">not yet done</div>
+        </div>
+    </div>
+
+    <!-- Action card -->
+    <div class="action-card">
+        <div class="action-bg-pulse"></div>
+        <div class="action-info">
+            <div class="action-tag">Daily Practice</div>
+            <div class="action-title">One Minute<br>Meditation</div>
+            <p class="action-desc">Sit comfortably, close your eyes, and breathe deeply. One minute a day changes everything.</p>
+
+            {% if completed_today %}
+            <div class="completed-badge" style="margin-top:20px">
+                <div class="completed-dot"></div>
+                <span class="completed-text">Session complete for today</span>
+            </div>
+            <a href="/meditation" class="btn-disabled">Already completed today</a>
+            {% else %}
+            <a href="/meditation" class="btn-meditate"><span>Begin Session</span></a>
+            {% endif %}
+        </div>
+        <div class="action-right">
+            <div class="mini-mandala">
+                <div class="mini-ring"></div>
+                <div class="mini-ring"></div>
+                <div class="mini-core"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar strip -->
+    <div class="section-label">This week</div>
+    <div class="calendar-strip" id="calStrip"></div>
+
+    <!-- Quote -->
+    <div class="quote-card">
+        <span class="quote-mark">"</span>
+        <div class="quote-text" id="quoteText"></div>
+        <div class="quote-attr" id="quoteAttr"></div>
+    </div>
+
+</div>
+
+<script>
+    // ── Data from template ──
+    const CURRENT_STREAK  = parseInt('{{ current_streak }}')  || 0;
+    const HIGHEST_STREAK  = parseInt('{{ highest_streak }}')  || 0;
+    const COMPLETED_TODAY = '{{ completed_today }}' === 'True';
+
+    // ── Stars ──
+    const starsEl = document.getElementById('stars');
+    for (let i = 0; i < 90; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const sz = 1 + Math.random() * 2;
+        s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${Math.random()*6}s;`;
+        starsEl.appendChild(s);
+    }
+
+    // ── Waveform ──
+    const waveBar = document.getElementById('waveBar');
+    for (let i = 0; i < 52; i++) {
+        const w = document.createElement('div');
+        w.className = 'wave-seg';
+        w.style.cssText = `height:${5+Math.random()*25}px;animation-duration:${0.7+Math.random()*1.8}s;animation-delay:${Math.random()*2}s;`;
+        waveBar.appendChild(w);
+    }
+
+    // ── Greeting sub ──
+    const hour = new Date().getHours();
+    const greets = hour < 5 ? ['The night is still', 'Deep in the quiet hours']
+                 : hour < 12 ? ['Morning calm awaits', 'A peaceful morning']
+                 : hour < 17 ? ['Midday stillness', 'A breath of afternoon calm']
+                 : hour < 21 ? ['Evening serenity', 'The day slows down']
+                 :              ['Night has fallen', 'End the day with stillness'];
+    document.getElementById('greetSub').textContent = greets[Math.floor(Math.random() * greets.length)];
+
+    // ── Count-up animation ──
+    function countUp(el, target, duration, suffix) {
+        let start = null;
+        el.classList.add('animate-count');
+        function step(ts) {
+            if (!start) start = ts;
+            const pct = Math.min((ts - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - pct, 3);
+            el.textContent = Math.round(ease * target) + (suffix || '');
+            if (pct < 1) requestAnimationFrame(step);
+            else el.classList.remove('animate-count');
+        }
+        requestAnimationFrame(step);
+    }
+
+    setTimeout(() => {
+        countUp(document.getElementById('streakVal'), CURRENT_STREAK, 1200);
+        countUp(document.getElementById('highVal'),   HIGHEST_STREAK, 1400);
+
+        // Streak ring
+        const maxStreak = Math.max(HIGHEST_STREAK, 1);
+        const pct = Math.min(CURRENT_STREAK / maxStreak, 1);
+        const circ = 2 * Math.PI * 17.5;
+        document.getElementById('streakRingFill').style.strokeDashoffset = circ * (1 - pct);
+
+        // Today stat
+        const todayEl   = document.getElementById('todayVal');
+        const todayUnit = document.getElementById('todayUnit');
+        if (COMPLETED_TODAY) {
+            todayEl.textContent  = 'Done';
+            todayEl.style.color  = 'rgba(122,184,122,0.8)';
+            todayUnit.textContent = 'great work today';
+        } else {
+            todayEl.textContent  = 'Pending';
+            todayEl.style.fontSize = '22px';
+            todayEl.style.paddingTop = '16px';
+            todayUnit.textContent = 'begin when ready';
+        }
+    }, 500);
+
+    // ── Calendar strip (last 7 days) ──
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const cal = document.getElementById('calStrip');
+    const today = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const isToday = i === 0;
+        // Simulate completed: today if done, previous days probabilistic based on streak
+        const isDone = isToday ? COMPLETED_TODAY : (i <= CURRENT_STREAK && !isToday);
+
+        const cell = document.createElement('div');
+        cell.className = 'cal-day' + (isDone ? ' done' : '') + (isToday ? ' today' : '');
+        cell.innerHTML = `
+            <div class="cal-day-name">${days[d.getDay()]}</div>
+            <div class="cal-day-num">${d.getDate()}</div>
+            <div class="cal-dot"></div>
+        `;
+        // Stagger
+        cell.style.animation = `riseIn 0.7s ${0.75 + (6-i)*0.05}s cubic-bezier(0.16,1,0.3,1) both`;
+        cal.appendChild(cell);
+    }
+
+    // ── Rotating quotes ──
+    const quotes = [
+        { text: 'The present moment is the only moment available to us, and it is the door to all moments.', attr: 'Thich Nhat Hanh' },
+        { text: 'Meditation is not a way of making your mind quiet. It is a way of entering into the quiet that is already there.', attr: 'Deepak Chopra' },
+        { text: 'Within you there is a stillness and a sanctuary to which you can retreat at any time.', attr: 'Hermann Hesse' },
+        { text: 'The goal of meditation is not to control your thoughts, it is to stop letting them control you.', attr: 'Anonymous' },
+        { text: 'Feelings come and go like clouds in a windy sky. Conscious breathing is my anchor.', attr: 'Thich Nhat Hanh' },
+        { text: 'Almost everything will work again if you unplug it for a few minutes, including you.', attr: 'Anne Lamott' },
+    ];
+
+    let qIdx = Math.floor(Math.random() * quotes.length);
+    const qText = document.getElementById('quoteText');
+    const qAttr = document.getElementById('quoteAttr');
+
+    function showQuote(idx) {
+        qText.style.opacity = '0';
+        setTimeout(() => {
+            qText.textContent = quotes[idx].text;
+            qAttr.textContent = '— ' + quotes[idx].attr;
+            qText.style.opacity = '1';
+        }, 600);
+    }
+    showQuote(qIdx);
+    setInterval(() => {
+        qIdx = (qIdx + 1) % quotes.length;
+        showQuote(qIdx);
+    }, 9000);
+
+    // ── Particles ──
+    function spawnParticle() {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDuration = (14 + Math.random() * 14) + 's';
+        p.style.animationDelay = (Math.random() * 4) + 's';
+        const sz = 1.5 + Math.random() * 2;
+        p.style.width = p.style.height = sz + 'px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 30000);
+    }
+    for (let i = 0; i < 12; i++) setTimeout(spawnParticle, i * 900);
+    setInterval(spawnParticle, 3500);
+</script>
+</body>
+</html>

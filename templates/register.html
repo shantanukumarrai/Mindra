@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Daily Meditation Streak</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --sand: #e8ddd0;
+            --clay: #b8956a;
+            --earth: #6b4f3a;
+            --moss: #4a5c4e;
+            --mist: #f5f0ea;
+            --ink: #2a1f1a;
+            --gold: #c9965a;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--mist);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Jost', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bg-canvas { position: fixed; inset: 0; z-index: 0; }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+            animation: drift linear infinite;
+        }
+        .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, #c9965a55, #b8956a22); top: -100px; left: -100px; animation-duration: 20s; }
+        .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, #4a5c4e44, #2a4a3a22); bottom: -80px; right: -80px; animation-duration: 25s; animation-direction: reverse; }
+        .orb-3 { width: 350px; height: 350px; background: radial-gradient(circle, #b8956a33, transparent); top: 40%; left: 55%; animation-duration: 16s; animation-delay: -8s; }
+
+        @keyframes drift {
+            0%   { transform: translate(0,0) scale(1); }
+            25%  { transform: translate(40px,-30px) scale(1.05); }
+            50%  { transform: translate(20px,50px) scale(0.97); }
+            75%  { transform: translate(-30px,20px) scale(1.03); }
+            100% { transform: translate(0,0) scale(1); }
+        }
+
+        .ripple-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 0; pointer-events: none; }
+        .ring { position: absolute; border-radius: 50%; border: 1px solid rgba(180,140,100,0.12); transform: translate(-50%,-50%); animation: expand ease-out infinite; }
+        .ring:nth-child(1) { animation-duration: 5s; animation-delay: 0s; }
+        .ring:nth-child(2) { animation-duration: 5s; animation-delay: 1.6s; }
+        .ring:nth-child(3) { animation-duration: 5s; animation-delay: 3.2s; }
+        @keyframes expand {
+            0%   { width: 80px; height: 80px; opacity: 0.5; }
+            100% { width: 900px; height: 900px; opacity: 0; }
+        }
+
+        /* Scrollable wrapper */
+        .scroll-wrap {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            overflow-y: auto;
+        }
+
+        .card {
+            width: 440px;
+            background: rgba(255,252,248,0.84);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(180,140,100,0.2);
+            border-radius: 2px;
+            padding: 52px 52px 48px;
+            box-shadow: 0 4px 40px rgba(100,70,40,0.08), 0 1px 0 rgba(255,255,255,0.9) inset;
+            animation: rise 0.9s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 52px; right: 52px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(32px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Progress steps */
+        .steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 40px;
+            animation: fadeUp 0.8s 0.1s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+        }
+
+        .step-dot {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(180,140,100,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px;
+            font-weight: 300;
+            color: rgba(100,80,60,0.4);
+            letter-spacing: 0;
+            transition: all 0.4s ease;
+            background: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step.active .step-dot {
+            border-color: var(--clay);
+            background: linear-gradient(135deg, var(--earth), var(--clay));
+            color: var(--mist);
+            box-shadow: 0 0 0 4px rgba(201,150,90,0.15);
+        }
+
+        .step.done .step-dot {
+            border-color: var(--moss);
+            background: var(--moss);
+            color: #fff;
+        }
+
+        .step-label {
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(100,80,60,0.4);
+            transition: color 0.4s;
+        }
+
+        .step.active .step-label { color: var(--clay); }
+        .step.done .step-label { color: var(--moss); }
+
+        .step-line {
+            width: 56px; height: 1px;
+            background: rgba(180,140,100,0.2);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-line-fill {
+            position: absolute;
+            left: 0; top: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--moss), var(--clay));
+            transition: width 0.6s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        /* Brand */
+        .brand {
+            text-align: center;
+            margin-bottom: 36px;
+            animation: fadeUp 0.8s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .brand h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 26px; font-weight: 400;
+            color: var(--ink);
+            letter-spacing: 0.02em;
+        }
+
+        .brand p {
+            font-size: 11px; font-weight: 200;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--clay);
+            margin-top: 6px;
+        }
+
+        /* Panels */
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* Error */
+        .error {
+            background: rgba(180,80,60,0.08);
+            border-left: 2px solid #b44c3c;
+            color: #8a3020;
+            font-size: 12.5px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            letter-spacing: 0.02em;
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25%      { transform: translateX(-6px); }
+            75%      { transform: translateX(6px); }
+        }
+
+        /* Form groups */
+        .form-group {
+            position: relative;
+            margin-bottom: 22px;
+            animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 10px; font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--earth);
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: rgba(232,221,208,0.3);
+            border: 1px solid rgba(180,140,100,0.25);
+            border-radius: 1px;
+            padding: 14px 16px;
+            font-family: 'Jost', sans-serif;
+            font-size: 14px; font-weight: 300;
+            color: var(--ink);
+            outline: none;
+            transition: all 0.35s ease;
+            letter-spacing: 0.04em;
+        }
+
+        .form-group input::placeholder { color: rgba(100,80,60,0.35); font-weight: 200; }
+        .form-group input:focus {
+            border-color: var(--clay);
+            background: rgba(232,221,208,0.5);
+            box-shadow: 0 0 0 3px rgba(201,150,90,0.1);
+        }
+
+        .form-group::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0; height: 1px;
+            background: linear-gradient(90deg, var(--clay), var(--gold));
+            transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .form-group:focus-within::after { width: 100%; }
+
+        /* Time picker custom styling */
+        input[type="time"] { cursor: pointer; }
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            opacity: 0.4;
+            cursor: pointer;
+            filter: sepia(1) saturate(2) hue-rotate(340deg);
+        }
+
+        /* Time display visual */
+        .time-visual {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: rgba(232,221,208,0.25);
+            border-radius: 1px;
+        }
+
+        .time-arc {
+            width: 32px; height: 32px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .time-arc svg { width: 100%; height: 100%; }
+
+        .time-arc-track { fill: none; stroke: rgba(180,140,100,0.2); stroke-width: 2; }
+        .time-arc-fill  { fill: none; stroke: var(--clay); stroke-width: 2; stroke-linecap: round;
+                          stroke-dasharray: 88; stroke-dashoffset: 88;
+                          transition: stroke-dashoffset 0.8s cubic-bezier(0.16,1,0.3,1);
+                          transform-origin: center; transform: rotate(-90deg); }
+
+        .time-text {
+            font-size: 11px; font-weight: 200;
+            letter-spacing: 0.12em;
+            color: rgba(100,80,60,0.6);
+        }
+
+        .time-text span { color: var(--clay); font-weight: 300; }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .btn-back {
+            flex: 0 0 auto;
+            padding: 15px 20px;
+            background: transparent;
+            border: 1px solid rgba(180,140,100,0.3);
+            border-radius: 1px;
+            color: var(--clay);
+            font-family: 'Jost', sans-serif;
+            font-size: 11px; font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover { background: rgba(180,140,100,0.08); }
+
+        .btn-next, .btn-submit {
+            flex: 1;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--earth), var(--clay));
+            color: var(--mist);
+            border: none;
+            border-radius: 1px;
+            font-family: 'Jost', sans-serif;
+            font-size: 11px; font-weight: 300;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn-next::before, .btn-submit::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, var(--clay), var(--gold));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .btn-next:hover::before, .btn-submit:hover::before { opacity: 1; }
+        .btn-next:hover, .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(100,70,40,0.2); }
+
+        .btn-next span, .btn-submit span { position: relative; z-index: 1; }
+
+        .btn-ripple {
+            position: absolute; border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: scale(0);
+            animation: btnRipple 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes btnRipple { to { transform: scale(4); opacity: 0; } }
+
+        /* Password strength */
+        .strength-bar {
+            display: flex; gap: 4px;
+            margin-top: 8px;
+        }
+
+        .strength-seg {
+            flex: 1; height: 2px;
+            background: rgba(180,140,100,0.15);
+            border-radius: 2px;
+            transition: background 0.4s ease;
+        }
+
+        .strength-seg.weak   { background: #c0604a; }
+        .strength-seg.fair   { background: #c9965a; }
+        .strength-seg.good   { background: #7a9e68; }
+        .strength-seg.strong { background: var(--moss); }
+
+        .strength-label {
+            font-size: 10px; letter-spacing: 0.15em;
+            color: rgba(100,80,60,0.4);
+            margin-top: 5px;
+            transition: color 0.4s;
+            text-transform: uppercase;
+        }
+
+        /* Success panel */
+        .success-panel {
+            text-align: center;
+            padding: 20px 0;
+            animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        .success-ring {
+            width: 64px; height: 64px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+
+        .success-ring svg { width: 100%; height: 100%; }
+
+        .success-circle {
+            fill: none;
+            stroke: var(--moss);
+            stroke-width: 1.5;
+            stroke-dasharray: 176;
+            stroke-dashoffset: 176;
+            animation: drawCircle 0.8s 0.2s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+
+        .success-check {
+            fill: none;
+            stroke: var(--moss);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 40;
+            stroke-dashoffset: 40;
+            animation: drawCheck 0.5s 0.9s ease forwards;
+        }
+
+        @keyframes drawCircle { to { stroke-dashoffset: 0; } }
+        @keyframes drawCheck  { to { stroke-dashoffset: 0; } }
+
+        .success-panel h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px; font-weight: 400;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .success-panel p {
+            font-size: 13px; font-weight: 200;
+            color: rgba(100,80,60,0.6);
+            letter-spacing: 0.05em;
+            line-height: 1.7;
+        }
+
+        /* Divider / footer */
+        .divider {
+            display: flex; align-items: center; gap: 12px;
+            margin-top: 28px;
+        }
+        .divider::before, .divider::after {
+            content: ''; flex: 1; height: 1px;
+            background: rgba(180,140,100,0.2);
+        }
+        .divider span {
+            font-size: 10px; letter-spacing: 0.15em;
+            color: rgba(180,140,100,0.5);
+            text-transform: uppercase;
+        }
+
+        .card-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px; font-weight: 200;
+            color: rgba(100,80,60,0.55);
+            letter-spacing: 0.05em;
+        }
+        .card-footer a {
+            color: var(--clay); text-decoration: none;
+            font-weight: 300;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .card-footer a:hover { border-color: var(--clay); }
+
+        /* Particle */
+        .particle {
+            position: fixed; border-radius: 50%;
+            background: var(--clay); opacity: 0;
+            animation: floatParticle linear infinite;
+            z-index: 1;
+        }
+        @keyframes floatParticle {
+            0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+            10%  { opacity: 0.3; }
+            90%  { opacity: 0.15; }
+            100% { transform: translateY(-20px) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+<div class="ripple-container">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+</div>
+
+<div class="scroll-wrap">
+<div class="card" id="card">
+
+    <!-- Brand -->
+    <div class="brand">
+        <h1>Daily Meditation</h1>
+        <p>Begin Your Journey</p>
+    </div>
+
+    <!-- Steps indicator -->
+    <div class="steps" id="stepsBar">
+        <div class="step active" id="step-ind-0">
+            <div class="step-dot">1</div>
+            <div class="step-label">Identity</div>
+        </div>
+        <div class="step-line"><div class="step-line-fill" id="line0"></div></div>
+        <div class="step" id="step-ind-1">
+            <div class="step-dot">2</div>
+            <div class="step-label">Access</div>
+        </div>
+        <div class="step-line"><div class="step-line-fill" id="line1"></div></div>
+        <div class="step" id="step-ind-2">
+            <div class="step-dot">3</div>
+            <div class="step-label">Ritual</div>
+        </div>
+    </div>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST" id="regForm">
+        <!-- Panel 0: Name & Email -->
+        <div class="panel active" id="panel-0">
+            <div class="form-group" style="animation-delay:0.1s">
+                <label for="name">Your Name</label>
+                <input type="text" id="name" name="name" placeholder="How shall we call you?" required>
+            </div>
+            <div class="form-group" style="animation-delay:0.2s">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="your@email.com" required>
+            </div>
+            <div class="btn-row" style="animation-delay:0.3s">
+                <button type="button" class="btn-next" id="next0" onclick="goNext(0)">
+                    <span>Continue</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel 1: Password -->
+        <div class="panel" id="panel-1">
+            <div class="form-group" style="animation-delay:0.1s">
+                <label for="password">Create Password</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required oninput="checkStrength(this.value)">
+                <div class="strength-bar" id="strengthBar">
+                    <div class="strength-seg" id="s1"></div>
+                    <div class="strength-seg" id="s2"></div>
+                    <div class="strength-seg" id="s3"></div>
+                    <div class="strength-seg" id="s4"></div>
+                </div>
+                <div class="strength-label" id="strengthLabel">Enter a password</div>
+            </div>
+            <div class="btn-row" style="animation-delay:0.2s">
+                <button type="button" class="btn-back" onclick="goBack(1)">Back</button>
+                <button type="button" class="btn-next" id="next1" onclick="goNext(1)">
+                    <span>Continue</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel 2: Reminder time -->
+        <div class="panel" id="panel-2">
+            <div class="form-group" style="animation-delay:0.1s">
+                <label for="reminder_time">Daily Reminder Time</label>
+                <input type="time" id="reminder_time" name="reminder_time" required oninput="updateTimeVisual(this.value)">
+                <div class="time-visual">
+                    <div class="time-arc">
+                        <svg viewBox="0 0 36 36">
+                            <circle class="time-arc-track" cx="18" cy="18" r="14"/>
+                            <circle class="time-arc-fill" id="timeArcFill" cx="18" cy="18" r="14"/>
+                        </svg>
+                    </div>
+                    <div class="time-text">Reminder set for <span id="timeDisplay">--:--</span></div>
+                </div>
+            </div>
+            <div class="btn-row" style="animation-delay:0.2s">
+                <button type="button" class="btn-back" onclick="goBack(2)">Back</button>
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span>Begin Streak</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel 3: Success (client-side preview) -->
+        <div class="panel" id="panel-3">
+            <div class="success-panel">
+                <div class="success-ring">
+                    <svg viewBox="0 0 64 64">
+                        <circle class="success-circle" cx="32" cy="32" r="28"/>
+                        <polyline class="success-check" points="20,33 28,41 44,24"/>
+                    </svg>
+                </div>
+                <h2>Streak Begins</h2>
+                <p>Your daily practice awaits.<br>One minute, every day.</p>
+            </div>
+        </div>
+    </form>
+
+    <div class="divider" id="footerDiv"><span>have an account</span></div>
+    <p class="card-footer" id="footerLink">Already practising? <a href="/login">Sign in</a></p>
+</div>
+</div>
+
+<script>
+    let currentPanel = 0;
+
+    function showPanel(idx, dir) {
+        const panels = document.querySelectorAll('.panel');
+        panels.forEach(p => {
+            p.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            p.style.opacity = '0';
+            p.style.transform = dir === 'forward' ? 'translateX(-24px)' : 'translateX(24px)';
+            setTimeout(() => { p.style.display = 'none'; }, 300);
+        });
+        setTimeout(() => {
+            const next = document.getElementById('panel-' + idx);
+            next.style.display = 'block';
+            next.style.opacity = '0';
+            next.style.transform = dir === 'forward' ? 'translateX(24px)' : 'translateX(-24px)';
+            next.classList.add('active');
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    next.style.opacity = '1';
+                    next.style.transform = 'translateX(0)';
+                });
+            });
+        }, 310);
+
+        // Steps
+        updateSteps(idx);
+    }
+
+    function updateSteps(idx) {
+        for (let i = 0; i < 3; i++) {
+            const s = document.getElementById('step-ind-' + i);
+            s.classList.remove('active', 'done');
+            if (i < idx)  s.classList.add('done');
+            if (i === idx) s.classList.add('active');
+        }
+        for (let i = 0; i < 2; i++) {
+            const fill = document.getElementById('line' + i);
+            fill.style.width = idx > i ? '100%' : '0%';
+        }
+        if (idx === 3) {
+            document.getElementById('stepsBar').style.opacity = '0';
+            document.getElementById('footerDiv').style.display = 'none';
+            document.getElementById('footerLink').style.display = 'none';
+        }
+    }
+
+    function goNext(from) {
+        // Basic validation
+        if (from === 0) {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            if (!name || !email) { shake('panel-0'); return; }
+        }
+        if (from === 1) {
+            const pw = document.getElementById('password').value;
+            if (pw.length < 6) { shake('panel-1'); return; }
+        }
+        currentPanel = from + 1;
+        showPanel(currentPanel, 'forward');
+    }
+
+    function goBack(from) {
+        currentPanel = from - 1;
+        showPanel(currentPanel, 'back');
+    }
+
+    function shake(panelId) {
+        const p = document.getElementById(panelId);
+        p.style.animation = 'none';
+        p.offsetHeight;
+        p.style.animation = 'shake 0.4s ease';
+    }
+
+    // Password strength
+    function checkStrength(val) {
+        const segs = [document.getElementById('s1'), document.getElementById('s2'),
+                      document.getElementById('s3'), document.getElementById('s4')];
+        const label = document.getElementById('strengthLabel');
+        segs.forEach(s => s.className = 'strength-seg');
+
+        let score = 0;
+        if (val.length >= 6)  score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        const classes = ['weak','fair','good','strong'];
+        const labels  = ['Too short','Getting there','Almost strong','Strong'];
+        const colors  = ['#c0604a','#c9965a','#7a9e68','var(--moss)'];
+
+        for (let i = 0; i < score; i++) segs[i].classList.add(classes[score - 1]);
+        label.textContent = val.length ? labels[score - 1] || labels[0] : 'Enter a password';
+        label.style.color = val.length ? colors[score - 1] : 'rgba(100,80,60,0.4)';
+    }
+
+    // Time visual
+    function updateTimeVisual(val) {
+        if (!val) return;
+        const [h, m] = val.split(':').map(Number);
+        const totalMins = h * 60 + m;
+        const pct = totalMins / 1440;
+        const circumference = 2 * Math.PI * 14;
+        const offset = circumference * (1 - pct);
+        document.getElementById('timeArcFill').style.strokeDashoffset = offset;
+
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const hh = h % 12 || 12;
+        const mm = String(m).padStart(2, '0');
+        document.getElementById('timeDisplay').textContent = `${hh}:${mm} ${ampm}`;
+    }
+
+    // Ripple
+    document.querySelectorAll('.btn-next, .btn-submit').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const rpl = document.createElement('div');
+            rpl.className = 'btn-ripple';
+            const size = Math.max(rect.width, rect.height);
+            rpl.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+            this.appendChild(rpl);
+            setTimeout(() => rpl.remove(), 600);
+        });
+    });
+
+    // Particles
+    function spawnParticle() {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDuration = (9 + Math.random() * 12) + 's';
+        p.style.animationDelay = (Math.random() * 3) + 's';
+        p.style.width = p.style.height = (2 + Math.random() * 2.5) + 'px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 24000);
+    }
+    for (let i = 0; i < 16; i++) setTimeout(spawnParticle, i * 700);
+    setInterval(spawnParticle, 2400);
+
+    // Parallax
+    const card = document.getElementById('card');
+    document.addEventListener('mousemove', e => {
+        const dx = (e.clientX - window.innerWidth/2) / (window.innerWidth/2);
+        const dy = (e.clientY - window.innerHeight/2) / (window.innerHeight/2);
+        card.style.transform = `perspective(1000px) rotateY(${dx*2.5}deg) rotateX(${-dy*2.5}deg)`;
+        card.style.transition = 'transform 0.1s ease';
+    });
+    document.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateY(0) rotateX(0)';
+        card.style.transition = 'transform 0.6s ease';
+    });
+</script>
+</body>
+</html>
