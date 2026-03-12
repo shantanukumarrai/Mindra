@@ -110,7 +110,7 @@ def complete_meditation_route():
 if __name__ == '__main__':
     init_database()                    # Create tables if not exist
     scheduler = start_scheduler()      # Start email + streak reset scheduler
-    print("🚀 Daily 1 Minute Meditation Streak app started!")
+    print("Daily 1 Minute Meditation Streak app started!")
     print("Reminder emails checked every minute.")
     print("Streak reset runs daily at 00:00 (server local time).")
-    app.run(debug=True, use_reloader=False)  # use_reloader=False prevents duplicate scheduler
+    app.run(host='0.0.0.0', debug=True, use_reloader=False)  # use_reloader=False prevents duplicate scheduler
